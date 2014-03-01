@@ -77,4 +77,10 @@ public class myEvent {
 	public String getEndDateHourAndMin(){
 		return this.EndDate.getHours() + ":" + this.EndDate.getMinutes();
 	}
+	
+	@Override
+	public String toString(){
+		return this.getTitle()+"="+this.getStartDateHourAndMin();
+	}
+
 }

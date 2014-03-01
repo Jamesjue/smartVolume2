@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.app.Fragment;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,10 +20,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CalendarFragment extends Fragment implements OnClickListener{
@@ -60,6 +61,7 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
 	private static Context mcontext;
+	public static View rootView;
 	//steve
 	int EVENT_NUM = 0;
 
@@ -68,7 +70,7 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.simple_calendar_view, container, false);
+		rootView = inflater.inflate(R.layout.simple_calendar_view, container, false);
 		//			super.onCreate(savedInstanceState);
 		//			setContentView(R.layout.simple_calendar_view);
 
@@ -85,11 +87,11 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 		selectedDayMonthYearButton = (Button) rootView.findViewById(R.id.selectedDayMonthYear);
 		selectedDayMonthYearButton.setText("Selected: ");
 		//steve
-		day_event_1 = (Button) rootView.findViewById(R.id.day_event_1);
-		day_event_2 = (Button) rootView.findViewById(R.id.day_event_2);
-		day_event_3 = (Button) rootView.findViewById(R.id.day_event_3);
-		day_event_4 = (Button) rootView.findViewById(R.id.day_event_4);
-		day_event_5 = (Button) rootView.findViewById(R.id.day_event_5);
+		//		day_event_1 = (Button) rootView.findViewById(R.id.day_event_1);
+		//		day_event_2 = (Button) rootView.findViewById(R.id.day_event_2);
+		//		day_event_3 = (Button) rootView.findViewById(R.id.day_event_3);
+		//		day_event_4 = (Button) rootView.findViewById(R.id.day_event_4);
+		//		day_event_5 = (Button) rootView.findViewById(R.id.day_event_5);
 
 
 		prevMonth = (ImageView) rootView.findViewById(R.id.prevMonth);
@@ -185,6 +187,7 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 		private TextView num_events_per_day;
 		private final HashMap eventsPerMonthMap;
 		private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
+		private List<Button> listOfButtons;
 		//private static final Context contextForEvent = new Context();//steve
 
 
@@ -196,7 +199,7 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 			this.list = new ArrayList<String>();
 			this.month = month;
 			this.year = year;
-
+			listOfButtons = new ArrayList<Button>();
 			Log.d(tag, "==> Passed in Date FOR Month: " + month + " " + "Year: " + year);
 			Calendar calendar = Calendar.getInstance();
 			setCurrentDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
@@ -429,26 +432,26 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 		@Override
 		public void onClick(View view)
 		{
-			
+
 			String date_month_year = (String) view.getTag();
 			selectedDayMonthYearButton.setText("Selected: " + date_month_year);
 			int day_event_num = EVENT_NUM; //**
 			Calendar c = Calendar.getInstance();
-			
+
 			// format string
-			date_month_year = date_month_year.replaceAll("January", "01");
-			date_month_year = date_month_year.replaceAll("February", "02");
-			date_month_year = date_month_year.replaceAll("March", "03");
-			date_month_year = date_month_year.replaceAll("April", "04");
-			date_month_year = date_month_year.replaceAll("May", "05");
-			date_month_year = date_month_year.replaceAll("June", "06");
-			date_month_year = date_month_year.replaceAll("July", "07");
-			date_month_year = date_month_year.replaceAll("August", "08");
-			date_month_year = date_month_year.replaceAll("September", "09");
-			date_month_year = date_month_year.replaceAll("October", "10");
-			date_month_year = date_month_year.replaceAll("November", "11");
-			date_month_year = date_month_year.replaceAll("December", "12");
-			
+			String convert_string = date_month_year.replaceAll("January", "01");
+			convert_string = convert_string.replaceAll("February", "02");
+			convert_string = convert_string.replaceAll("March", "03");
+			convert_string = convert_string.replaceAll("April", "04");
+			convert_string = convert_string.replaceAll("May", "05");
+			convert_string = convert_string.replaceAll("June", "06");
+			convert_string = convert_string.replaceAll("July", "07");
+			convert_string = convert_string.replaceAll("August", "08");
+			convert_string = convert_string.replaceAll("September", "09");
+			convert_string = convert_string.replaceAll("October", "10");
+			convert_string = convert_string.replaceAll("November", "11");
+			convert_string = convert_string.replaceAll("December", "12");
+
 			SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 			Date currentDate = new Date();
 			try {
@@ -457,27 +460,43 @@ public class CalendarFragment extends Fragment implements OnClickListener{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 			long current_time = currentDate.getTime();
 			List<myEvent> list = MainActivity.calHelp.getEventByCalendarAndTime(MainActivity.cr,MainActivity.calendars.get((int)(MainActivity.currentID - 1)), current_time);
+
+			LinearLayout linearLayout = (LinearLayout) CalendarFragment.rootView.findViewById(R.id.day_event_list);
 			
-			//refresh buttons
-			day_event_5.setText("");
-			day_event_4.setText("");
-			day_event_3.setText("");
-			day_event_2.setText("");
-			day_event_1.setText("");
-			//set buttons
-			switch(EVENT_NUM=EVENT_NUM%6){
-			default: 
-			case 5: day_event_5.setText("event_5");
-			case 4: day_event_4.setText("event_4");
-			case 3: day_event_3.setText("event_3");
-			case 2: day_event_2.setText("event_2");
-			case 1: day_event_1.setText("event_1");
-			case 0: break;		
+			for(int i = 0; i < list.size(); i++){
+			
+				Button button = new Button(getActivity());
+				listOfButtons.add(button);
+				//For buttons visibility, you must set the layout params in order to give some width and height: 
+				LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, 32);
+				button.setBackgroundColor(R.drawable.calendar_top_header);
+				button.setTag(list.get(i).toString());
+				button.setLayoutParams(params);
+				button.setText(list.get(i).getDescription());
+				button.setTextColor(0xFFFFFF);
+				linearLayout.addView(button);
+				
 			}
-			EVENT_NUM++;
+			//			//refresh buttons
+			//			day_event_5.setText("");
+			//			day_event_4.setText("");
+			//			day_event_3.setText("");
+			//			day_event_2.setText("");
+			//			day_event_1.setText("");
+			//			//set buttons
+			//			switch(EVENT_NUM=EVENT_NUM%6){
+			//			default: 
+			//			case 5: day_event_5.setText("event_5");
+			//			case 4: day_event_4.setText("event_4");
+			//			case 3: day_event_3.setText("event_3");
+			//			case 2: day_event_2.setText("event_2");
+			//			case 1: day_event_1.setText("event_1");
+			//			case 0: break;		
+			//			}
+			//			EVENT_NUM++;
 			//Button day_event = new Button(_context);
 			//day_event.setText(strEv
 

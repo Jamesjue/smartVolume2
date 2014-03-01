@@ -67,7 +67,7 @@ public final class R {
         public static final int TextView01=0x7f090008;
         public static final int TextView02=0x7f090006;
         public static final int TextView03=0x7f090003;
-        public static final int action_settings=0x7f090023;
+        public static final int action_settings=0x7f09001e;
         public static final int alarmBar=0x7f090007;
         public static final int allBar=0x7f09000b;
         public static final int button2=0x7f090011;
@@ -77,11 +77,6 @@ public final class R {
         public static final int calendar_day_gridcell=0x7f090014;
         public static final int content_frame=0x7f090001;
         public static final int currentMonth=0x7f090019;
-        public static final int day_event_1=0x7f09001e;
-        public static final int day_event_2=0x7f09001f;
-        public static final int day_event_3=0x7f090020;
-        public static final int day_event_4=0x7f090021;
-        public static final int day_event_5=0x7f090022;
         public static final int day_event_list=0x7f09001d;
         public static final int drawer_layout=0x7f090000;
         public static final int left_drawer=0x7f090002;

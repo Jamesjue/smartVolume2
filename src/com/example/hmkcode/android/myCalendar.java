@@ -38,4 +38,11 @@ public class myCalendar {
 	public String getOwnerName(){
 		return this.ownerName;
 	}
+	
+	@Override
+	public String toString(){
+		return this.displayName;
+	}
+
+
 }

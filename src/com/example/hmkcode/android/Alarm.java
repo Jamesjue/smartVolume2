@@ -68,35 +68,39 @@ public class Alarm {
 		long milliseconds = System.currentTimeMillis();				
 		Log.d(tag, "current time in milli: " + milliseconds);
 		
-		//only using 1 calendar right now!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		ArrayList<myEvent> curEvents=mHelper.getEventByCalendarAndTime(this.mContext.getContentResolver(), calList.get(0), milliseconds);
-		for (myEvent eachEvt:curEvents){
-			BroadcastReceiver brt= new BroadcastReceiver(){
-				@Override
-				public void onReceive(Context context, Intent intent) {
-					//load volume profile and change volume here
-					Log.d(tag, "waked up !!! profile record key: "+intent.getAction());
-					Toast.makeText(context, "Rise and Shine!!!!!!!!!!", Toast.LENGTH_LONG).show();
-					setProfile(intent.getAction());
-				}
-			};
-			AlarmManager amt;
-			PendingIntent pit;
-			mContext.registerReceiver(brt, new IntentFilter(eachEvt.toString()));
-			//broad cast event
-			pit = PendingIntent.getBroadcast(this.mContext, 0,
-					new Intent(eachEvt.toString()), 0);
-			amt = (AlarmManager) (this.mContext.getSystemService(Context.ALARM_SERVICE));
-			//set wakeup time
-			long wakeupTime = eachEvt.getStartDate().getTime();
-			Log.d(tag,"wake up after (ms): "+(wakeupTime - System.currentTimeMillis()) + ";  wake up date: "+eachEvt.getStartDate().toString());
-			Log.d(tag,"current elapsedreal time: " + SystemClock.elapsedRealtime());
-			amt.set( AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + (wakeupTime - System.currentTimeMillis()), pit);
-			
-			//add all of these stuff into list
-			this.brl.add(brt);
-			this.aml.add(amt);
-			this.pil.add(pit);
+		//support multiple calendar
+		for (myCalendar eachCal: calList){
+			ArrayList<myEvent> curEvents=mHelper.getEventByCalendarAndTime(this.mContext.getContentResolver(), eachCal, milliseconds);
+			for (myEvent eachEvt:curEvents){
+				BroadcastReceiver brt= new BroadcastReceiver(){
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						//load volume profile and change volume here
+						Log.d(tag, "waked up !!! profile record key: "+intent.getAction());
+						Toast.makeText(context, "Rise and Shine!!!!!!!!!!", Toast.LENGTH_LONG).show();
+						setProfile(intent.getAction(),intent.getStringExtra("cal"));
+					}
+				};
+				AlarmManager amt;
+				PendingIntent pit;
+				mContext.registerReceiver(brt, new IntentFilter(eachEvt.toString()));
+				//broad cast event
+				Intent br_intent= new Intent(eachEvt.toString());
+				br_intent.putExtra("cal", eachCal.toString());
+				pit = PendingIntent.getBroadcast(this.mContext, 0,
+						br_intent, 0);
+				amt = (AlarmManager) (this.mContext.getSystemService(Context.ALARM_SERVICE));
+				//set wakeup time
+				long wakeupTime = eachEvt.getStartDate().getTime();
+				Log.d(tag,"wake up after (ms): "+(wakeupTime - System.currentTimeMillis()) + ";  wake up date: "+eachEvt.getStartDate().toString());
+				Log.d(tag,"current elapsedreal time: " + SystemClock.elapsedRealtime());
+				amt.set( AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + (wakeupTime - System.currentTimeMillis()), pit);
+				
+				//add all of these stuff into list
+				this.brl.add(brt);
+				this.aml.add(amt);
+				this.pil.add(pit);
+			}
 		}
 	}
 	
@@ -116,7 +120,7 @@ public class Alarm {
 	 * set volume to profile index by event
 	 * @param event
 	 */
-	private void setProfile(String event){
+	private void setProfile(String event, String cal){
 		Log.d(tag, "event happend: "+event);		
 		Log.d(tag, "query db to find profile");
 		Profile out=db.getProfile(event);
@@ -159,9 +163,61 @@ public class Alarm {
 					Log.e(tag, "some unkown mode in the database");
 				}
 			}
+		} else {  //use calendar default
+			setCalProfile(cal);
 		}
 		
 	}
+	
+	
+	private void setCalProfile(String cal){
+		Log.d(tag,"no profile match. try calendar default");
+		Log.d(tag, "query db to find profile");
+		Profile out=db.getProfile(cal);
+		Log.d(tag, "profile: "+ out.getProfile());
+		
+		String data=out.getProfile();
+		if (data != null){ //only change settings if there is a profile
+			//parse the values first
+			String[] valueString=data.split(";");
+			if (valueString.length != 7){
+				Log.e(tag, "record has wrong number of items. don't change current volume");
+			} else {
+				//convert String to int first
+				int[] values=new int[7];
+				for (int i =0; i<7;i++){
+					values[i] = Integer.valueOf(valueString[i]);
+				}
+				if (values[6]== 0){ //ringer mode
+					float index_ring= (float)values[0]/100 * (float)max_alarm_index;
+					float index_music= (float)values[1]/100 * (float)max_ring_index;
+					float index_system= (float)values[2]/100 * (float)max_music_index;
+					float index_alarm= (float)values[3]/100 * (float)max_system_index;
+					float index_noti= (float)values[4]/100 * (float)max_noti_index;			
+
+					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);					
+					this.setVolume(AudioManager.STREAM_RING, (int)(index_ring+0.5));
+					this.setVolume(AudioManager.STREAM_MUSIC,(int)(index_music+0.5) );			
+					this.setVolume(AudioManager.STREAM_ALARM, (int)(index_alarm+0.5));			
+					this.setVolume(AudioManager.STREAM_SYSTEM, (int)(index_system+0.5));					
+					this.setVolume(AudioManager.STREAM_NOTIFICATION, (int)(index_noti+0.5));	
+					Toast.makeText(this.mContext, "turn on ringer mode", Toast.LENGTH_LONG).show();
+				} else if (values[6] == 1) { //silent
+					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);					
+					Toast.makeText(this.mContext, "turn on silent mode", Toast.LENGTH_LONG).show();					
+				} else if (values[6] == 2){ //vibrate
+					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);					
+					Toast.makeText(this.mContext, "turn on vibrate mode", Toast.LENGTH_LONG).show();					
+				} else {
+					Log.e(tag, "some unkown mode in the database");
+				}
+			}
+		} else {  
+			setProfile(cal, null);
+		}
+		
+	}
+	
 	
 	/**
 	 * set volume of streamtype at index
