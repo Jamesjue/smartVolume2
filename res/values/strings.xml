@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SmartVolume</string>
+    <string name="action_settings">Settings</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="hello">Hello World, SimpleCalendar!</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="audio">Audio Profiles</string>
+    <string name="Ring">Ring</string>
+    <string name="Vibrate">Vibrate</string>
+    <string name="Silent">Silent</string>
+    <string name="Mode">Current Mode</string>
+    <string name="Status">Current Status</string>
+
+</resources>
