@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -63,6 +64,10 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 	private static final String dateTemplate = "MMMM yyyy";
 	private static Context mcontext;
 	public static View rootView;
+    private List<Button> listOfButtons;	
+	
+	CalendarFragment curFrag;
+	
 	// steve
 	int EVENT_NUM = 0;
 
@@ -70,6 +75,8 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		this.curFrag=this;
+		
 		rootView = inflater.inflate(R.layout.simple_calendar_view, container,
 				false);
 		// super.onCreate(savedInstanceState);
@@ -116,6 +123,41 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 		return rootView;
 	}
 
+	
+	public void changeButton(List<myEvent> list){
+		this.listOfButtons.clear();
+		Log.d("calendar", "event list size: " + list.size());
+		LinearLayout linearLayout = (LinearLayout) this.rootView
+				.findViewById(R.id.day_event_list);
+		if (linearLayout.getChildCount() > 0)
+			linearLayout.removeAllViews();
+		// TODO Auto-generated method stub
+		for (int i = 0; i < list.size(); i++) {
+			Button button = new Button(getActivity());
+			listOfButtons.add(button);
+			Log.d("calendar", "add one button");
+			// For buttons visibility, you must set the layout params in
+			// order to give some width and height:
+			LayoutParams params = new LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+//			button.setBackgroundColor(0xffffff);
+			Log.d("calendar", list.get(i).getTitle());
+			button.setText(list.get(i).getTitle());
+			button.setTag(list.get(i).toString());			
+//			button.setTextColor(0xFFFFFF);
+			button.setLayoutParams(params);
+			button.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent volCtrl = new Intent(getActivity(), VolumeControlActivity.class);
+					volCtrl.putExtra("event", (String)v.getTag());
+					startActivity(volCtrl);
+				}
+			});
+			linearLayout.addView(button);
+		}
+	}
+	
 	/**
 	 * 
 	 * @param month
@@ -188,7 +230,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 		private final HashMap eventsPerMonthMap;
 		private final SimpleDateFormat dateFormatter = new SimpleDateFormat(
 				"dd-MMM-yyyy");
-		private List<Button> listOfButtons;
+//		private List<Button> listOfButtons;
 
 		// private static final Context contextForEvent = new Context();//steve
 
@@ -460,22 +502,26 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 			convert_string = convert_string.replaceAll("November", "11");
 			convert_string = convert_string.replaceAll("December", "12");
 
+			Log.d("calendar", "convert_string: " + convert_string);
 			SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 			Date currentDate = new Date();
 			try {
-				currentDate = format.parse(date_month_year);
+				currentDate = format.parse(convert_string);
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
+			Log.d("calendar", currentDate.toString());
 			long current_time = currentDate.getTime();
-			final List<myEvent> list = MainActivity.calHelp
+			List<myEvent> list = MainActivity.calHelp
 					.getEventByCalendarAndTime(MainActivity.cr,
 							MainActivity.calendars
 									.get((int) (MainActivity.currentID - 1)),
 							current_time);
 
+			curFrag.changeButton(list);
+/*			
 			Log.d("calendar", "event list size: " + list.size());
 			LinearLayout linearLayout = (LinearLayout) CalendarFragment.rootView
 					.findViewById(R.id.day_event_list);
@@ -497,6 +543,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 
 				linearLayout.addView(button);
 			}
+*/			
 			/*
 			 * for(int i = 0; i < list.size(); i++){ Button button = new
 			 * Button(getActivity()); listOfButtons.add(button);

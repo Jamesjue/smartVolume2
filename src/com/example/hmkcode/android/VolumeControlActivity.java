@@ -60,7 +60,8 @@ public class VolumeControlActivity extends Activity implements OnSeekBarChangeLi
 		setContentView(R.layout.activity_volumecontrol);
 		
 		Intent inMsg=getIntent();
-		this.event= inMsg.getStringExtra("event"); //the key of database record. event.toString(); 
+		this.event= inMsg.getStringExtra("event"); //the key of database record. event.toString();
+		Log.d(tag,"volum control get event " + this.event);
 		if (this.event == null){
 			this.event="tmp";
 			Log.e(tag, "profile activity invoked without event name");

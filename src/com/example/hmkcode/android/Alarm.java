@@ -72,6 +72,7 @@ public class Alarm {
 		for (myCalendar eachCal: calList){
 			ArrayList<myEvent> curEvents=mHelper.getEventByCalendarAndTime(this.mContext.getContentResolver(), eachCal, milliseconds);
 			for (myEvent eachEvt:curEvents){
+				Log.d(tag, "event set alarm: " + eachEvt.toString());
 				BroadcastReceiver brt= new BroadcastReceiver(){
 					@Override
 					public void onReceive(Context context, Intent intent) {
@@ -111,8 +112,8 @@ public class Alarm {
 		int cnt=0;
 		for (AlarmManager eachAlarm: aml){
 			eachAlarm.cancel(pil.get(cnt));
-			cnt ++;
 			this.mContext.unregisterReceiver(brl.get(cnt));
+			cnt ++;			
 		}
 	}		
 	
@@ -203,10 +204,18 @@ public class Alarm {
 					this.setVolume(AudioManager.STREAM_NOTIFICATION, (int)(index_noti+0.5));	
 					Toast.makeText(this.mContext, "turn on ringer mode", Toast.LENGTH_LONG).show();
 				} else if (values[6] == 1) { //silent
+					this.setVolume(AudioManager.STREAM_MUSIC, 0);
+					this.setVolume(AudioManager.STREAM_SYSTEM, 0);
+					this.setVolume(AudioManager.STREAM_NOTIFICATION, 0);					
+					this.setVolume(AudioManager.STREAM_ALARM, 0);					
 					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);					
 					Toast.makeText(this.mContext, "turn on silent mode", Toast.LENGTH_LONG).show();					
 				} else if (values[6] == 2){ //vibrate
-					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);					
+					this.setVolume(AudioManager.STREAM_MUSIC, 0);
+					this.setVolume(AudioManager.STREAM_SYSTEM, 0);
+					this.setVolume(AudioManager.STREAM_NOTIFICATION, 0);					
+					this.setVolume(AudioManager.STREAM_ALARM, 0);					
+					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 					Toast.makeText(this.mContext, "turn on vibrate mode", Toast.LENGTH_LONG).show();					
 				} else {
 					Log.e(tag, "some unkown mode in the database");
