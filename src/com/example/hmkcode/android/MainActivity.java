@@ -91,6 +91,11 @@ public class MainActivity extends Activity {
 		drawerLayout.setDrawerShadow(R.drawable.ic_navigation_drawer, GravityCompat.START);
 		
 		mAlarm = new Alarm(getApplicationContext());
+		
+		if (savedInstanceState == null ){
+			selectItem(0);
+			this.currentID=1;
+		}
 	}
 
 	/**

@@ -190,18 +190,18 @@ public class Alarm {
 					values[i] = Integer.valueOf(valueString[i]);
 				}
 				if (values[6]== 0){ //ringer mode
-					float index_ring= (float)values[0]/100 * (float)max_alarm_index;
-					float index_music= (float)values[1]/100 * (float)max_ring_index;
-					float index_system= (float)values[2]/100 * (float)max_music_index;
-					float index_alarm= (float)values[3]/100 * (float)max_system_index;
-					float index_noti= (float)values[4]/100 * (float)max_noti_index;			
+					float index_ring= (float)values[1]/100 * (float)max_ring_index;
+					float index_music= (float)values[2]/100 * (float)max_music_index;
+					float index_system= (float)values[3]/100 * (float)max_system_index;
+					float index_alarm= (float)values[4]/100 * (float)max_alarm_index;
+					float index_noti= (float)values[5]/100 * (float)max_noti_index;			
 
-					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);					
 					this.setVolume(AudioManager.STREAM_RING, (int)(index_ring+0.5));
 					this.setVolume(AudioManager.STREAM_MUSIC,(int)(index_music+0.5) );			
 					this.setVolume(AudioManager.STREAM_ALARM, (int)(index_alarm+0.5));			
 					this.setVolume(AudioManager.STREAM_SYSTEM, (int)(index_system+0.5));					
-					this.setVolume(AudioManager.STREAM_NOTIFICATION, (int)(index_noti+0.5));	
+					this.setVolume(AudioManager.STREAM_NOTIFICATION, (int)(index_noti+0.5));
+					myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);										
 					Toast.makeText(this.mContext, "turn on ringer mode", Toast.LENGTH_LONG).show();
 				} else if (values[6] == 1) { //silent
 					this.setVolume(AudioManager.STREAM_MUSIC, 0);

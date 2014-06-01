@@ -124,14 +124,38 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 	}
 
 	
-	public void changeButton(List<myEvent> list){
+	public void changeButton(List<myEvent> list, String calName){
 		this.listOfButtons.clear();
 		Log.d("calendar", "event list size: " + list.size());
 		LinearLayout linearLayout = (LinearLayout) this.rootView
 				.findViewById(R.id.day_event_list);
 		if (linearLayout.getChildCount() > 0)
 			linearLayout.removeAllViews();
-		// TODO Auto-generated method stub
+
+		//generate calendar button
+		Button calButton = new Button(getActivity());
+		listOfButtons.add(calButton);
+		Log.d("calendar", "add one button");
+		// For buttons visibility, you must set the layout params in
+		// order to give some width and height:
+		LayoutParams calparams = new LayoutParams(
+				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		Log.d("calendar", calName);
+		calButton.setText(calName);
+		calButton.setTag(calName);			
+		calButton.setTextColor(Color.parseColor("white"));
+		calButton.setLayoutParams(calparams);
+		calButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent volCtrl = new Intent(getActivity(), VolumeControlActivity.class);
+				volCtrl.putExtra("event", (String)v.getTag());
+				startActivity(volCtrl);
+			}
+		});
+		linearLayout.addView(calButton);
+
+		
 		for (int i = 0; i < list.size(); i++) {
 			Button button = new Button(getActivity());
 			listOfButtons.add(button);
@@ -140,11 +164,10 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 			// order to give some width and height:
 			LayoutParams params = new LayoutParams(
 					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-//			button.setBackgroundColor(0xffffff);
-			Log.d("calendar", list.get(i).getTitle());
+			//Log.d("calendar", list.get(i).getTitle());
 			button.setText(list.get(i).getTitle());
 			button.setTag(list.get(i).toString());			
-//			button.setTextColor(0xFFFFFF);
+			button.setTextColor(Color.parseColor("white"));
 			button.setLayoutParams(params);
 			button.setOnClickListener(new OnClickListener() {
 				@Override
@@ -287,7 +310,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 		 * @param yy
 		 */
 		private void printMonth(int mm, int yy) {
-			Log.d(tag, "==> printMonth: mm: " + mm + " " + "yy: " + yy);
+//			Log.d(tag, "==> printMonth: mm: " + mm + " " + "yy: " + yy);
 			// The number of days to leave blank at
 			// the start of this month.
 			int trailingSpaces = 0;
@@ -302,8 +325,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 			String currentMonthName = getMonthAsString(currentMonth);
 			daysInMonth = getNumberOfDaysOfMonth(currentMonth);
 
-			Log.d(tag, "Current Month: " + " " + currentMonthName + " having "
-					+ daysInMonth + " days.");
+//			Log.d(tag, "Current Month: " + " " + currentMonthName + " having "	+ daysInMonth + " days.");
 
 			// Gregorian Calendar : MINUS 1, set to FIRST OF MONTH
 			GregorianCalendar cal = new GregorianCalendar(yy, currentMonth, 1);
@@ -355,6 +377,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 
 			// Trailing Month days
 			for (int i = 0; i < trailingSpaces; i++) {
+/*				
 				Log.d(tag,
 						"PREV MONTH:= "
 								+ prevMonth
@@ -364,6 +387,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 								+ String.valueOf((daysInPrevMonth
 										- trailingSpaces + DAY_OFFSET)
 										+ i));
+*/										
 				list.add(String
 						.valueOf((daysInPrevMonth - trailingSpaces + DAY_OFFSET)
 								+ i)
@@ -376,8 +400,10 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 
 			// Current Month Days
 			for (int i = 1; i <= daysInMonth; i++) {
+				/*
 				Log.d(currentMonthName, String.valueOf(i) + " "
 						+ getMonthAsString(currentMonth) + " " + yy);
+						*/
 				if (i == getCurrentDayOfMonth()) {
 					list.add(String.valueOf(i) + "-BLUE" + "-"
 							+ getMonthAsString(currentMonth) + "-" + yy);
@@ -444,7 +470,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 
 			// ACCOUNT FOR SPACING
 
-			Log.d(tag, "Current Day: " + getCurrentDayOfMonth());
+//			Log.d(tag, "Current Day: " + getCurrentDayOfMonth());
 			String[] day_color = list.get(position).split("-");
 			String theday = day_color[0];
 			String themonth = day_color[2];
@@ -461,8 +487,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 			// Set the Day GridCell
 			gridcell.setText(theday);
 			gridcell.setTag(theday + "-" + themonth + "-" + theyear);
-			Log.d(tag, "Setting GridCell " + theday + "-" + themonth + "-"
-					+ theyear);
+//			Log.d(tag, "Setting GridCell " + theday + "-" + themonth + "-"		+ theyear);
 
 			if (day_color[1].equals("GREY")) {
 				gridcell.setTextColor(Color.LTGRAY);
@@ -520,7 +545,7 @@ public class CalendarFragment extends Fragment implements OnClickListener {
 									.get((int) (MainActivity.currentID - 1)),
 							current_time);
 
-			curFrag.changeButton(list);
+			curFrag.changeButton(list, MainActivity.calendars.get((int)(MainActivity.currentID-1)).getDisplayName());
 /*			
 			Log.d("calendar", "event list size: " + list.size());
 			LinearLayout linearLayout = (LinearLayout) CalendarFragment.rootView
